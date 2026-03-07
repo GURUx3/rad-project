@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RADIUS_AI // HACKATHON</title>
+    <link rel="stylesheet" href="radius.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <aside class="no-print">
+            <div style="margin-bottom: 1rem;">
+                <div class="brand">RADIUS_AI</div>
+                <div class="brand-sub">INFERENCE ENGINE v10.0</div>
+            </div>
+
+            <div class="input-group">
+                <div class="label">TARGET META</div>
+                <input type="text" id="patient-name" placeholder="Target Identifier">
+                <input type="text" id="patient-id" placeholder="Reference Code (MRN)">
+                <input type="date" id="patient-dob">
+            </div>
+
+            <div class="input-group">
+                <div class="label">DATA INGESTION</div>
+                <textarea id="findings-text" placeholder="Paste raw unstructured NLP data..."></textarea>
+                
+                <div id="drop-zone" class="file-upload-zone">
+                    <span id="file-label">DROP TXT/PDF REPOSITORY</span>
+                    <input type="file" id="file-input" style="display: none;" accept=".txt,.pdf">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="engine.execute()">EXECUTE INFERENCE</button>
+        </aside>
+
+        <!-- MAIN REPORT -->
+        <main>
+            <div id="welcome-view" style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                <div style="text-align: center;">
+                    <h2 class="brand" style="font-size: 3rem; color: #cbd5e1;">AWAITING DATA</h2>
+                </div>
+            </div>
+
+            <div id="report-view" style="display: none;">
+                <div class="report-paper">
+                    
+                    <div class="report-header">
+                        <div>
+                            <div class="brand">CLASSIFICATION OUTPUT</div>
+                            <div class="brand-sub">RADIUS_AI NEURAL SYNTHESIS</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="label" style="border: none; margin: 0; padding: 0; font-size: 0.6rem;">EXECUTION HASH</div>
+                            <div id="rep-exec-id" style="font-family: var(--font-mono); font-size: 1rem; font-weight: 700;">--</div>
+                            <div id="rep-timestamp" style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">--</div>
+                        </div>
+                    </div>
+
+                    <div id="urgency-banner" class="urgency-banner">--</div>
+
+                    <div class="patient-data">
+                        <div>
+                            <div class="data-row"><span class="data-key">Target Name</span><span id="rep-name" class="data-val">--</span></div>
+                            <div class="data-row"><span class="data-key">Reference Code</span><span id="rep-id" class="data-val">--</span></div>
+                        </div>
+                        <div>
+                            <div class="data-row"><span class="data-key">Chronology (DOB)</span><span id="rep-dob" class="data-val">--</span></div>
+                            <div class="data-row"><span class="data-key">Extraction Source</span><span id="rep-technique" class="data-val">--</span></div>
+                        </div>
+                    </div>
+
+                    <div class="diagnostics-grid">
+                        <div class="stat-box">
+                            <div class="label" style="border: none;">Primary Inference</div>
+                            <div id="rep-diagnosis" class="stat-num">--</div>
+                            <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700;">
+                                FOCUS: <span id="rep-area">--</span>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="label" style="border: none;">Probability Distribution</div>
+                            <div class="chart-container">
+                                <canvas id="reliability-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Actionable Directives</div>
+                    <ul id="rep-recommendations" class="recommendations">
+                        <!-- Dynamic LI injection -->
+                    </ul>
+
+                    <div class="footer-meta">
+                        <div>RADIUS_AI v10.0 // HACKATHON EDITION</div>
+                        <div id="rep-latency">LATENCY: --</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="engine.js"></script>
+</body>
+</html>
