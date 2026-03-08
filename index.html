@@ -1,108 +1,163 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RADIUS_AI // HACKATHON</title>
-    <link rel="stylesheet" href="radius.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Radius · Clinical NLP</title>
+    <link rel="stylesheet" href="styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div class="container">
-        <!-- SIDEBAR -->
-        <aside class="no-print">
-            <div style="margin-bottom: 1rem;">
-                <div class="brand">RADIUS_AI</div>
-                <div class="brand-sub">INFERENCE ENGINE v10.0</div>
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- ═══════════════ SIDEBAR ═══════════════ -->
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <div class="brand">
+            <div class="brand-mark">R</div>
+            <div>
+              <p class="brand-kicker">Clinical NLP</p>
+              <h1>Radius</h1>
             </div>
+          </div>
+          <button id="btn-new-thread" class="btn-new-thread">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            New Case
+          </button>
+        </div>
 
-            <div class="input-group">
-                <div class="label">TARGET META</div>
-                <input type="text" id="patient-name" placeholder="Target Identifier">
-                <input type="text" id="patient-id" placeholder="Reference Code (MRN)">
-                <input type="date" id="patient-dob">
+        <p class="sidebar-section-title">Patient Threads</p>
+
+        <div id="thread-list" class="thread-list"></div>
+
+        <div class="sidebar-foot">
+          Threads are auto-grouped by patient identity extracted from report
+          text.
+        </div>
+      </aside>
+
+      <!-- ═══════════════ CHAT PANE ═══════════════ -->
+      <main class="chat-pane">
+        <!-- Header -->
+        <header class="chat-header">
+          <div style="min-width: 0">
+            <p class="chat-kicker">Radiology Copilot</p>
+            <h2 id="active-thread-title">New Case</h2>
+            <p id="active-thread-meta" class="chat-meta">
+              Paste a report and run analysis. Patient identity is
+              auto-detected.
+            </p>
+          </div>
+          <span id="connection-pill" class="connection-pill">Connecting…</span>
+        </header>
+
+        <!-- Feed -->
+        <section id="chat-feed" class="chat-feed">
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M9 12h6M9 16h6M9 8h3M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"
+                />
+              </svg>
             </div>
+            <h3>No report analyzed yet</h3>
+            <p>
+              Upload or paste radiology findings below to start a patient
+              thread.
+            </p>
+          </div>
+        </section>
 
-            <div class="input-group">
-                <div class="label">DATA INGESTION</div>
-                <textarea id="findings-text" placeholder="Paste raw unstructured NLP data..."></textarea>
-                
-                <div id="drop-zone" class="file-upload-zone">
-                    <span id="file-label">DROP TXT/PDF REPOSITORY</span>
-                    <input type="file" id="file-input" style="display: none;" accept=".txt,.pdf">
-                </div>
+        <!-- Composer -->
+        <footer class="composer">
+          <label class="composer-label" for="findings-text">Report text</label>
+          <textarea
+            id="findings-text"
+            placeholder="Paste full report text — include Patient Name, DOB, MRN, Findings, Impression for best results…"
+          ></textarea>
+          <div class="composer-actions">
+            <div
+              id="drop-zone"
+              class="drop-zone"
+              role="button"
+              tabindex="0"
+              aria-label="Upload file"
+            >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <span id="file-label">Upload .txt or .pdf</span>
+              <input
+                type="file"
+                id="file-input"
+                style="display: none"
+                accept=".txt,.pdf"
+              />
             </div>
-
-            <button class="btn btn-primary" onclick="engine.execute()">EXECUTE INFERENCE</button>
-        </aside>
-
-        <!-- MAIN REPORT -->
-        <main>
-            <div id="welcome-view" style="height: 100%; display: flex; align-items: center; justify-content: center;">
-                <div style="text-align: center;">
-                    <h2 class="brand" style="font-size: 3rem; color: #cbd5e1;">AWAITING DATA</h2>
-                </div>
-            </div>
-
-            <div id="report-view" style="display: none;">
-                <div class="report-paper">
-                    
-                    <div class="report-header">
-                        <div>
-                            <div class="brand">CLASSIFICATION OUTPUT</div>
-                            <div class="brand-sub">RADIUS_AI NEURAL SYNTHESIS</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div class="label" style="border: none; margin: 0; padding: 0; font-size: 0.6rem;">EXECUTION HASH</div>
-                            <div id="rep-exec-id" style="font-family: var(--font-mono); font-size: 1rem; font-weight: 700;">--</div>
-                            <div id="rep-timestamp" style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">--</div>
-                        </div>
-                    </div>
-
-                    <div id="urgency-banner" class="urgency-banner">--</div>
-
-                    <div class="patient-data">
-                        <div>
-                            <div class="data-row"><span class="data-key">Target Name</span><span id="rep-name" class="data-val">--</span></div>
-                            <div class="data-row"><span class="data-key">Reference Code</span><span id="rep-id" class="data-val">--</span></div>
-                        </div>
-                        <div>
-                            <div class="data-row"><span class="data-key">Chronology (DOB)</span><span id="rep-dob" class="data-val">--</span></div>
-                            <div class="data-row"><span class="data-key">Extraction Source</span><span id="rep-technique" class="data-val">--</span></div>
-                        </div>
-                    </div>
-
-                    <div class="diagnostics-grid">
-                        <div class="stat-box">
-                            <div class="label" style="border: none;">Primary Inference</div>
-                            <div id="rep-diagnosis" class="stat-num">--</div>
-                            <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700;">
-                                FOCUS: <span id="rep-area">--</span>
-                            </div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="label" style="border: none;">Probability Distribution</div>
-                            <div class="chart-container">
-                                <canvas id="reliability-chart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section-title">Actionable Directives</div>
-                    <ul id="rep-recommendations" class="recommendations">
-                        <!-- Dynamic LI injection -->
-                    </ul>
-
-                    <div class="footer-meta">
-                        <div>RADIUS_AI v10.0 // HACKATHON EDITION</div>
-                        <div id="rep-latency">LATENCY: --</div>
-                    </div>
-                </div>
-            </div>
-        </main>
+            <button
+              class="btn-execute"
+              id="btn-execute"
+              onclick="app.execute()"
+            >
+              Analyze Report
+            </button>
+          </div>
+        </footer>
+      </main>
     </div>
 
-    <script src="engine.js"></script>
-</body>
+    <script>
+      /**
+       * RADIUS.NLP — renderAssistantMessage patched to use card-body wrapper
+       * All other logic is identical to app.js
+       */
+    </script>
+    <script src="app.js"></script>
+
+    <!-- Patch: wrap card content in .card-body after original render -->
+    <script>
+      (function () {
+        const _orig = app.renderAssistantMessage.bind(app);
+        app.renderAssistantMessage = function (report) {
+          const row = _orig(report);
+          const card = row.querySelector(".assistant-card");
+          if (!card) return row;
+
+          // Everything after the assistant-head goes into card-body
+          const head = card.querySelector(".assistant-head");
+          const children = [...card.children].filter((c) => c !== head);
+
+          // Remove the fake ::before from old CSS (no-op, just wrapping DOM)
+          const body = document.createElement("div");
+          body.className = "card-body";
+          children.forEach((c) => body.appendChild(c));
+          card.appendChild(body);
+
+          return row;
+        };
+      })();
+    </script>
+  </body>
 </html>
